@@ -7,6 +7,13 @@ import { headers } from "next/headers";
 
 export const maxDuration = 60;
 
+const DEFAULT_GEMINI_MODELS = [
+  process.env.GEMINI_MODEL,
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash-latest",
+].filter((model): model is string => Boolean(model));
+
 export async function POST(request: NextRequest) {
   try {
     // Verify session
@@ -58,19 +65,34 @@ export async function POST(request: NextRequest) {
 
     // Call Gemini API for transcription
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    let result: Awaited<ReturnType<ReturnType<typeof genAI.getGenerativeModel>["generateContent"]>> | null = null;
+    let lastError: unknown = null;
 
-    const result = await model.generateContent([
-      {
-        inlineData: {
-          mimeType: mimeType,
-          data: base64Data,
-        },
-      },
-      {
-        text: "Please transcribe this audio file accurately. Return only the transcribed text, nothing else. If there is no speech or the audio is unclear, say 'No speech detected or audio unclear.'",
-      },
-    ]);
+    for (const modelName of DEFAULT_GEMINI_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        result = await model.generateContent([
+          {
+            inlineData: {
+              mimeType: mimeType,
+              data: base64Data,
+            },
+          },
+          {
+            text: "Please transcribe this audio file accurately. Return only the transcribed text, nothing else. If there is no speech or the audio is unclear, say 'No speech detected or audio unclear.'",
+          },
+        ]);
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!result) {
+      throw lastError instanceof Error
+        ? lastError
+        : new Error("No Gemini model was available for transcription.");
+    }
 
     const transcript = result.response.text().trim();
 

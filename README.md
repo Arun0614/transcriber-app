@@ -7,7 +7,7 @@ A full-stack Next.js application for audio transcription using Gemini AI.
 - **Frontend/Backend**: Next.js 16 (App Router)
 - **Database**: PostgreSQL (via Railway)
 - **Auth**: Better Auth (username + password)
-- **Transcription**: Google Gemini 1.5 Flash API
+- **Transcription**: Google Gemini API
 - **ORM**: Drizzle ORM
 - **Styling**: Tailwind CSS v4
 - **Deployment**: Railway
@@ -41,7 +41,10 @@ DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=<generate with: openssl rand -base64 32>
 BETTER_AUTH_URL=http://localhost:3000
 GEMINI_API_KEY=<from https://aistudio.google.com/app/apikey>
+GEMINI_MODEL=gemini-2.5-flash
 ```
+
+On Railway, add all four variables to the app service before deploying. Without them the app will fail during startup.
 
 ### 3. Database Setup
 
@@ -94,7 +97,7 @@ Or add to your build command: `npm run build && npm run db:migrate && npm run db
 
 1. Admin logs in at `/login` with username + password
 2. Admin uploads an audio file (MP3, WAV, OGG, etc., under 1 min / 10MB)
-3. App sends audio to Gemini 1.5 Flash API for transcription
+3. App sends audio to the Gemini API for transcription
 4. Only the transcript text is stored in PostgreSQL (not the audio file)
 5. Admin can view all past transcripts on the dashboard
 6. Admin can copy or delete any transcript
