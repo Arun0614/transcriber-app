@@ -62,6 +62,9 @@ If login was already failing before, run both commands again so the auth tables 
 
 ```bash
 npm run dev
+
+ ### transcrober app link 
+ https://transcriber-app-production.up.railway.app/login
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
