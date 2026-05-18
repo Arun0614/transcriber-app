@@ -63,7 +63,7 @@ If login was already failing before, run both commands again so the auth tables 
 ```bash
 npm run dev
 
- ### transcrober app link 
+ ### transcriber app link 
  https://transcriber-app-production.up.railway.app/login
 ```
 
